@@ -1,0 +1,239 @@
+// theme
+$color-pack: false;
+
+@import '~vuetify/src/styles/main.sass';
+
+.position_view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.textDisplay {
+  margin: 2px;
+}
+
+.stepDisplay {
+  margin-right: 2px;
+  margin: 2px;
+  margin-top: 10px;
+  margin-bottom: 80px;
+  height: 100%;
+}
+
+.textsDisplay {
+  height: 140px;
+  margin-left: 5px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  padding: 2px;
+  font-family: monospace;
+  font-size: 35px;
+}
+
+.font-red {
+  color: red;
+  font-style: italic;
+  text-decoration: underline;
+  font-size: 25px;
+}
+
+// global
+.icon-offline-25p {
+  width: 25px;
+  height: 25px;
+}
+
+.pointer {
+  cursor: pointer;
+}
+
+.fade-transition {
+  &-leave-active {
+    position: absolute;
+  }
+
+  &-enter-active,
+  &-leave,
+  &-leave-to {
+    transition: $primary-transition;
+  }
+
+  &-enter,
+  &-leave-to {
+    opacity: 0;
+  }
+}
+
+.card-less-opacity {
+  opacity: 0.3;
+}
+
+.card-z-index {
+  z-index: 2;
+}
+
+.card-border {
+  border-radius: 10px;
+}
+
+.blur_container {
+  .blur {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    z-index: 3;
+    -webkit-filter: blur(30px);
+    filter: url('/media/blur.svg#blur');
+    filter: blur(30px);
+  }
+}
+
+.blur_content {
+  position: relative;
+  z-index: 4;
+  background: rgb(34, 34, 34);
+  background: rgba(34, 34, 34, 0.86);
+}
+
+.bg_container {
+  .blur {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+    z-index: 3;
+    -webkit-filter: blur(10px);
+    filter: url('/media/blur.svg#blur');
+    filter: blur(10px);
+  }
+}
+
+.v-input__slot {
+  .error--text {
+    color: hsla(0, 0%, 100%, 0.7) !important;
+  }
+}
+
+.toast-info {
+  background-color: map-get($blue, base);
+}
+
+#toast-container > div {
+  opacity: 0.9;
+}
+
+.gradient {
+  background: -webkit-linear-gradient(to right, #ce634a, #fab136);
+  background: linear-gradient(to right, #ce634a, #fab136);
+}
+
+.deletegrad {
+  background: -webkit-linear-gradient(to right, #d34727, #fa6666);
+  background: linear-gradient(to right, #d34727, #fa6666);
+}
+
+.bg-gradient {
+  background: -webkit-linear-gradient(to right, #f12711, #f5af19);
+  background: linear-gradient(to right, #f12711, #f5af19);
+}
+
+.theme--light.application {
+  background-color: #333333;
+}
+
+.theme--light.v-label {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.theme--light.v-icon {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.auth-layout__auth-wallpaper__cross-line {
+  z-index: 0;
+  position: fixed;
+  background-color: #282828;
+  /*box-shadow: 3px 3px 5px 1px #333;*/
+  left: calc(68% - 27% / 2);
+  -webkit-transform: rotate(15deg);
+  transform: rotate(15deg);
+  width: 100%;
+  height: 1000%;
+  margin-top: -30%;
+}
+
+.auth-layout__auth-wallpaper__cross-line_i {
+  z-index: 0;
+  position: fixed;
+  background-color: #f9a11c;
+  left: calc(63% - 27% / 2);
+  -webkit-transform: rotate(15deg);
+  transform: rotate(15deg);
+  width: 27%;
+  height: 1000%;
+  margin-top: -30%;
+}
+
+.v-messages__message {
+  line-height: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  -webkit-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+  color: coral;
+}
+
+.v-text-field__slot {
+  caret-color: black;
+}
+
+/* for custom scrollbar for webkit browser*/
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+}
+::-webkit-scrollbar-thumb {
+    -webkit-box-shadow: inset 0 0 50px #fab249;
+}
+
+.asdasdd {
+  border: solid red 1px!important;
+}
+
+.tv-lightweight-charts {
+  width: -webkit-fill-available !important;
+}
+
+.tv-lightweight-charts table {
+  width: -webkit-fill-available !important;
+}
+
+:-webkit-autofill {
+   animation-name: onAutoFillStart;
+}
+:not(:-webkit-autofill) {
+   animation-name: onAutoFillCancel;
+}
+@keyframes onAutoFillStart {
+   from {
+   }
+   to {
+   }
+}
+@keyframes onAutoFillCancel {
+   from {
+   }
+   to {
+   }
+}
