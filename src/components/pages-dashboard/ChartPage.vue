@@ -130,7 +130,8 @@ export default {
       const marker = {
         time: data.timestamp + this.tsOffset,
         position: 'inBar',
-        text: '$'+data.amount,
+        shape: 'userBet',
+        text: '$' + data.amount,
         betData: {
           user: {
             image:
@@ -139,7 +140,6 @@ export default {
           up: data.up,
         },
       }
-      console.log('data',marker)
       this.markers.push(marker)
     },
     correctTimestamp(item) {

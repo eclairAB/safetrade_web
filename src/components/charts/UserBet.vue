@@ -10,6 +10,18 @@
           >
             <v-form ref="form" v-model="isFormValid">
               <v-row>
+                <v-flex xs12 px-5>
+                  <v-layout justify-space-between top>
+                    <span class="body-1">Cash credits</span>
+
+                    <div class="headline1">
+                      $ {{ userWallet.cash }}
+                    </div>
+                  </v-layout>
+                  <v-divider class="padding"/>
+                </v-flex>
+              </v-row>
+              <v-row>
                 <v-col cols="6">
                   <v-text-field
                     v-model="amount"
@@ -50,7 +62,7 @@
   </v-container>
 </template>
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import { useAssets, useFormRules } from '@/compositions'
 import { useAssetPrices } from '@/compositions'
 
@@ -64,12 +76,14 @@ export default {
     return { rules, activeAsset, assetPrices }
   },
   data: () => ({
+    snackBarPayload: {},
     loading: false,
     isFormValid: false,
     amount: null,
   }),
   methods: {
     ...mapActions('assetBets', ['addBet']),
+    ...mapActions('snackBar', ['showSnackBar']),
     async submit(willGoUp) {
       if (!this.isFormValid) {
         return
@@ -90,12 +104,22 @@ export default {
       try {
         await this.addBet(formData)
         this.$refs.form.reset()
+        this.showPopup('success', `$${formData.amount} bet placed.`)
       } catch (err) {
         console.log(err)
       }
       this.loading = false
     },
+    showPopup(color, text) {
+      this.snackBarPayload.color = color
+      this.snackBarPayload.isShow = true
+      this.snackBarPayload.text = text
+      this.showSnackBar(this.snackBarPayload)
+    },
   },
+  computed: {
+    ...mapGetters('userWallet', ['userWallet'])
+  }
 }
 </script>
 <style lang="scss">
