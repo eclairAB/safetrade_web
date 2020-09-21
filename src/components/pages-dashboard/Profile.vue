@@ -13,7 +13,7 @@
             accept="image/jpeg, image/png"
             size="10"
             radius="100"
-            :prefill="user.user_display_pic ? user.user_display_pic : prefill"
+            :prefill="users.user_display_pic ? base64_img : prefill"
             :prefillOptions="{
               fileName: 'image',
               fileType: 'png',
@@ -54,12 +54,13 @@ import PinCard from '@/components/props/PinCard.vue'
 import PictureInput from 'vue-picture-input'
 import Prefill from '@/assets/prefill.js'
 import { mapActions, mapGetters, mapMutations } from 'vuex'
-import { postApi } from '@/http'
+import { getApi, postApi } from '@/http'
 export default {
   components: { PictureInput, AccountInfo, BasicInformation, PinCard },
   mixins: [Prefill],
   data: () => ({
     users: {},
+    base64_img: '',
     snackBarPayload: {},
     errTxt: '',
     componentKey: 0,
@@ -78,9 +79,10 @@ export default {
     },
     trade(pin) {
       this.users.transaction_pin = pin
-      postApi(`update/user/dp/${this.users.id}`, this.users).then((data) => {
+      console.log(this.users)
+      /*postApi(`update/user/dp/${this.users.id}`, this.users).then((data) => {
         this.setMessage(data)
-      })
+      })*/
     },
     closeDialog() {
       this.tPin = false
@@ -89,17 +91,21 @@ export default {
     changePic() {
       if (this.$refs.pictureInput.image) {
         var selectedImage = this.$refs.pictureInput.image
-        this.users.user_display_pic = selectedImage
+        this.users.image = selectedImage
 
         this.tPin = true
       } else {
         this.showPopup('error', 'File not supported')
       }
     },
+    getBase64_image() {
+      getApi(`base64/dp`).then((data) => {
+        this.base64_img = data
+      })
+    },
     populate() {
       this.users = Object.assign({}, this.users, this.userSuccess)
       this.users.id = this.user.id
-      this.users.user_display_pic = ''
     },
     showPopup(color, text) {
       this.snackBarPayload.color = color
@@ -146,6 +152,7 @@ export default {
     },
   },
   created() {
+    this.getBase64_image()
     this.populate()
   },
 }

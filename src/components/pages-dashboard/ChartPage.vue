@@ -1,7 +1,12 @@
 <template>
-  <v-row>
-    <v-col class="col-chart pb-0" cols="12">
-      <div id="price-chart"></div>
+  <v-row style="height: 100%;">
+    <v-col class="col-chart pb-0 fill-height" cols="12">
+      <highcharts
+        :options="getChartOptions"
+        style="height: 100%;"
+        ref="chart"
+      ></highcharts>
+
       <div
         style="
           position: absolute;
@@ -17,13 +22,15 @@
 </template>
 <script>
 import UserBet from '@/components/charts/UserBet'
-import { mapActions } from 'vuex'
-import { createChart, PriceScaleMode } from '@infosoftstudio/lightweight-charts'
+import { mapActions, mapGetters } from 'vuex'
 import { useAssetPrices } from '@/compositions'
+import { Chart } from 'highcharts-vue'
+const moment = require('moment')
 
 export default {
   components: {
     UserBet,
+    highcharts: Chart,
   },
   setup(_props, context) {
     const {
@@ -42,67 +49,71 @@ export default {
     }
   },
   data: () => ({
+    plotLine: null,
     chart: null,
     data: [],
     markers: [],
     lastDateValue: null,
     unit: 'seconds',
     areaSeries: null,
-    chartOptions: {
-      localization: {
-        dateFormat: 'yyyy-MM-dd',
-      },
-      layout: {
-        backgroundColor: '#242424',
-        textColor: '#d1d4dc',
-        fontSize: 13,
-        fontFamily: 'Calibri',
-      },
-      grid: {
-        vertLines: {
-          color: 'rgba(70, 130, 180, 0.5)',
-          style: 1,
-          visible: true,
-        },
-        horzLines: {
-          color: 'rgba(70, 130, 180, 0.5)',
-          style: 1,
-          visible: true,
-        },
-      },
-      rightPriceScale: {
-        mode: PriceScaleMode.Normal,
-        autoScale: true,
-        alignLabels: false,
-        borderVisible: false,
-        borderColor: '#555ffd',
-        scaleMargins: {
-          top: 0.3,
-          bottom: 0.25,
-        },
-      },
-      timeScale: {
-        rightOffset: 60,
-        barSpacing: 6,
-        fixLeftEdge: false,
-        lockVisibleTimeRangeOnResize: false,
-        rightBarStaysOnScroll: true,
-        borderVisible: false,
-        borderColor: '#ff7700',
-        visible: true,
-        timeVisible: true,
-        secondsVisible: true,
-      },
-      handleScroll: {
-        mouseWheel: true,
-        pressedMouseMove: true,
-      },
-      handleScale: {
-        axisPressedMouseMove: true,
-        mouseWheel: true,
-        pinch: true, // on touch devices
-      },
-    },
+    shadowCircle: null,
+    animatedPointGroup: null,
+    // chartOptions: {
+    //   localization: {
+    //     dateFormat: 'yyyy-MM-dd',
+    //   },
+    //   layout: {
+    //     backgroundColor: '#242424',
+    //     textColor: '#d1d4dc',
+    //     fontSize: 13,
+    //     fontFamily: 'Calibri',
+    //   },
+    //   grid: {
+    //     vertLines: {
+    //       color: 'rgba(70, 130, 180, 0.5)',
+    //       style: 1,
+    //       visible: true,
+    //     },
+    //     horzLines: {
+    //       color: 'rgba(70, 130, 180, 0.5)',
+    //       style: 1,
+    //       visible: true,
+    //     },
+    //   },
+    //   rightPriceScale: {
+    //     mode: PriceScaleMode.Normal,
+    //     autoScale: true,
+    //     alignLabels: false,
+    //     borderVisible: false,
+    //     borderColor: '#555ffd',
+    //     scaleMargins: {
+    //       top: 0.3,
+    //       bottom: 0.25,
+    //     },
+    //   },
+    //   timeScale: {
+    //     rightOffset: 60,
+    //     barSpacing: 6,
+    //     fixLeftEdge: false,
+    //     lockVisibleTimeRangeOnResize: false,
+    //     rightBarStaysOnScroll: true,
+    //     borderVisible: false,
+    //     borderColor: '#ff7700',
+    //     visible: true,
+    //     timeVisible: true,
+    //     secondsVisible: true,
+    //   },
+    //   handleScroll: {
+    //     mouseWheel: true,
+    //     pressedMouseMove: true,
+    //   },
+    //   handleScale: {
+    //     axisPressedMouseMove: true,
+    //     mouseWheel: true,
+    //     pinch: true, // on touch devices
+    //   },
+    // },
+    //chartOptions: this.getChartOptions,
     seriesOptions: {
       overlay: true,
       topColor: 'rgba(76, 175, 80, 0.56)',
@@ -117,6 +128,7 @@ export default {
     },
   }),
   computed: {
+    ...mapGetters('chartData', ['getChartOptions']),
     tsOffset() {
       return Math.abs(new Date().getTimezoneOffset()) * 60
     },
@@ -126,6 +138,8 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['addAssetPrices']),
+    ...mapActions('chartData', ['addPoint']),
+
     newBet(data) {
       const marker = {
         time: data.timestamp + this.tsOffset,
@@ -175,39 +189,188 @@ export default {
     },
   },
   async mounted() {
-    const container = document.querySelector('#price-chart')
-    this.chart = createChart(container, {
-      width: window.innerWidth - 15,
-      height: window.innerHeight - 75,
-    })
-    this.chart.applyOptions(this.chartOptions)
-    this.chart
-      .timeScale()
-      .subscribeVisibleTimeRangeChange(async (timerange) => {
-        if (timerange && this.oldestTime && !this.isFetchingPrices) {
-          if (timerange.from - 30000 < this.oldestTime && this.nextPageUrl) {
-            await this.fetchPrices({ url: this.nextPageUrl })
-          }
-        }
+    let chart = this.$refs.chart.chart
+    const pointerSize = 16
+
+    this.plotLine = chart.renderer
+      .path(['M', 0, 0, 'L', 0, 0])
+      .attr({
+        stroke: '#008dc4',
+        'stroke-width': 3,
       })
-    this.areaSeries = this.chart.addAreaSeries(this.seriesOptions)
+      .add()
+
+    this.animatedPointGroup = chart.renderer
+      .g()
+      .attr({
+        translateX: 0,
+        translateY: 0,
+      })
+      .add()
+
+    this.shadowCircle = chart.renderer
+      .circle(pointerSize / 2, pointerSize / 2, pointerSize)
+      .attr({
+        fill: '#d3d7de',
+      })
+      .add(this.animatedPointGroup)
+
+    chart.renderer
+      .circle(pointerSize / 2, pointerSize / 2, 6)
+      .attr({
+        fill: '#ffffff',
+      })
+      .add(this.animatedPointGroup)
+
+    chart.renderer
+      .circle(pointerSize / 2, pointerSize / 2, 3)
+      .attr({
+        fill: '#008dc4',
+      })
+      .add(this.animatedPointGroup)
+
+    chart.yAxis[0].addPlotLine({
+      id: 'value',
+      value: 100000000,
+      color: 'red',
+      width: 1.2,
+      label: {
+        text: 'Start',
+        style: {
+          color: 'white',
+        },
+      },
+    })
+
+    let textValue
+
     this.$echo
       .channel('asset.price')
       .listen('AssetPriceUpdated', async ({ data }) => {
+        await this.addPoint([data.timestamp * 1000, parseFloat(data.price)])
         await this.addAssetPrices([data])
         await this.addBetMarker(data.betData)
+
+        let chart = this.$refs.chart.chart
+
+        let series = chart.series[0]
+        let point = series.points[series.points.length - 1]
+        let xPos = point.plotX + chart.plotLeft
+        let yPos = point.plotY + chart.plotTop
+
+        if (typeof textValue == 'object') textValue.destroy()
+
+        textValue = chart.renderer
+          .label(
+            parseFloat(data.price),
+            0,
+            point.plotY + chart.plotTop,
+            'callout',
+            point.plotX + chart.plotLeft,
+            point.plotY + chart.plotTop
+          )
+          .css({
+            color: '#FFFFFF',
+          })
+          .attr({
+            fill: 'rgba(0, 0, 0, 0.75)',
+            padding: 8,
+            r: 5,
+          })
+          .add()
+
+        if (moment(data.timestamp * 1000).second() == 30) {
+          let maxLine =
+            moment()
+              .add(1, 'minutes')
+              .set({ second: 30, millisecond: 0 })
+              .unix() * 1000
+
+          let minLine =
+            moment()
+              .add(2, 'minutes')
+              .set({ second: 0, millisecond: 0 })
+              .unix() * 1000
+
+          console.log(minLine, maxLine)
+
+          chart.xAxis[0].removePlotLine('startLine')
+          chart.xAxis[0].removePlotLine('endLine')
+
+          chart.xAxis[0].addPlotLine({
+            id: 'endLine',
+            value: minLine,
+            color: 'red',
+            width: 1.2,
+            label: {
+              text: 'Finish',
+              style: {
+                color: 'white',
+              },
+            },
+          })
+
+          chart.xAxis[0].addPlotLine({
+            id: 'startLine',
+            value: maxLine,
+            color: 'red',
+            width: 1.2,
+            label: {
+              text: 'Start',
+              style: {
+                color: 'white',
+              },
+            },
+          })
+
+          let min = moment(chart.xAxis[0].max)
+            .subtract(30, 'seconds')
+            .set({ second: 0, millisecond: 0 })
+
+          chart.xAxis[0].setExtremes(
+            min.unix() * 1000,
+            moment()
+              .add(2, 'minutes')
+              .set({ second: 15, millisecond: 0 })
+              .unix() * 1000
+          )
+        }
+
+        setTimeout(() => {
+          this.animatedPointGroup.animate({
+            translateX: xPos - pointerSize / 2,
+            translateY: yPos - pointerSize / 2,
+          })
+
+          this.shadowCircle.animate({
+            r:
+              this.shadowCircle.attr('r') === pointerSize
+                ? pointerSize / 2
+                : pointerSize,
+          })
+        }, 50)
+
+        this.plotLine
+          .animate({
+            d: ['M', chart.plotLeft, yPos, 'L', xPos * 10000, yPos],
+          })
+          .attr({
+            stroke: '#008dc4',
+            'stroke-width': 1,
+          })
+          .add()
       })
   },
   beforeDestroy() {
-    this.chart.timeScale().unsubscribeVisibleTimeRangeChange()
+    //this.chart.timeScale().unsubscribeVisibleTimeRangeChange()
   },
   watch: {
-    prices(value) {
-      if (value.length > 0) {
-        this.areaSeries.setData(value) // set the data
-        this.areaSeries.setMarkers(this.markers)
-      }
-    },
+    // prices(value) {
+    //   if (value.length > 0) {
+    //     this.areaSeries.setData(value) // set the data
+    //     this.areaSeries.setMarkers(this.markers)
+    //   }
+    // },
   },
 }
 </script>

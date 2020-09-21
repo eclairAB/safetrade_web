@@ -1,4 +1,6 @@
-import { asyncGetApi } from '@/http'
+import {
+  asyncGetApi
+} from '@/http'
 
 const state = {
   assets: [],
@@ -30,9 +32,9 @@ const mutations = {
       return
     }
     const payloadOldestTime = payload[length - 1].timestamp
-    state.oldestTime = state.oldestTime
-      ? Math.min(payloadOldestTime, state.oldestTime)
-      : payloadOldestTime
+    state.oldestTime = state.oldestTime ?
+      Math.min(payloadOldestTime, state.oldestTime) :
+      payloadOldestTime
   },
   SET_IS_FETCHING_PRICES: (state, payload) => {
     state.isFetchingPrices = payload
@@ -40,14 +42,23 @@ const mutations = {
 }
 
 const actions = {
-  async fetchAssets({ commit }) {
-    const { data } = await asyncGetApi('assets')
+  async fetchAssets({
+    commit
+  }) {
+    const {
+      data
+    } = await asyncGetApi('assets')
     commit('SET_ASSETS', data)
   },
-  async setIsFetchingPrices({ commit }, payload) {
+  async setIsFetchingPrices({
+    commit
+  }, payload) {
     commit('SET_IS_FETCHING_PRICES', payload)
   },
-  async addAssetPrices({ commit }, payload) {
+  async addAssetPrices({
+    commit
+  }, payload) {
+    //console.log(payload)
     commit('UPDATE_OLDEST_TIME', payload)
     commit('ADD_ASSET_PRICES', payload)
   },

@@ -1,5 +1,5 @@
 <template>
-  <v-row>
+  <v-row class="ma-0">
     <v-card width="100%">
       <v-toolbar class="gradient" dark>
         <v-toolbar-title>Transfer</v-toolbar-title>
@@ -38,10 +38,10 @@
       </v-toolbar>
 
       <v-form v-model="formInput">
-        <v-col class="px-3 pt-3">
+        <v-col>
           <v-row justify="center">
-            <v-col cols="12" class="pr-2">
-              <v-row>
+            <v-row class="mx-1">
+              <v-col cols="12" md="12" class="pr-2">
                 <span class="caption grey--text">
                   Amount
                 </span>
@@ -54,11 +54,11 @@
                   class="text-none"
                   :rules="[rules.required, rules.decimalInput]"
                 />
-              </v-row>
-            </v-col>
+              </v-col>
+            </v-row>
 
-            <v-col cols="12" class="pr-2">
-              <v-row>
+            <v-row class="mx-1">
+              <v-col cols="12" md="12" class="pr-2">
                 <span class="caption grey--text">
                   Receiver's Email
                 </span>
@@ -70,11 +70,11 @@
                   class="text-none"
                   :rules="[rules.required, rules.emailrule]"
                 />
-              </v-row>
-            </v-col>
+              </v-col>
+            </v-row>
 
-            <v-col cols="12" class="pr-2">
-              <v-row>
+            <v-row class="mx-1">
+              <v-col cols="12" md="12" class="pr-2">
                 <span class="caption grey--text">
                   Transaction Pin
                 </span>
@@ -89,15 +89,15 @@
                   solo-inverted
                   @keyup.enter="transfer"
                 />
-              </v-row>
-            </v-col>
+              </v-col>
+            </v-row>
           </v-row>
         </v-col>
       </v-form>
 
       <v-col>
         <v-row>
-          <span class="ml-3 pb-3 caption grey--text">
+          <span class="ml-7 pb-3 caption grey--text">
             Current balance:
             <span class="orange--text">
               {{ balance }}
@@ -133,11 +133,11 @@ export default {
       required: (value) => !!value || 'Required.',
       textonly: (value) => {
         const pattern = /[0-9~`!@#$%^&*()_\\\-+={[\]}|;:'",<.>/?]/
-        return pattern.test(value) ? 'Invalid Input.' : false
+        return pattern.test(value) ? 'Invalid Input.' : true
       },
       digitonly: (value) => {
         const pattern = /\D/
-        return pattern.test(value) ? 'Invalid Input.' : false
+        return pattern.test(value) ? 'Invalid Input.' : true
       },
       decimalInput: (value) => {
         const pattern = /^(\d+)?(\.)?(\d+)$/

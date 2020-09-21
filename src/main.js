@@ -4,13 +4,20 @@ import router from './router'
 import store from './store'
 import cors from 'cors'
 import Croppa from 'vue-croppa'
+import HighchartsVue from 'highcharts-vue'
 
 import 'chart.js'
 import 'hchs-vue-charts'
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faUserSecret } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import {
+  library
+} from '@fortawesome/fontawesome-svg-core'
+import {
+  faUserSecret
+} from '@fortawesome/free-solid-svg-icons'
+import {
+  FontAwesomeIcon
+} from '@fortawesome/vue-fontawesome'
 
 Vue.config.productionTip = false
 
@@ -26,6 +33,8 @@ Vue.use(cors, window.VueCharts)
 library.add(faUserSecret)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('croppa', Croppa.component)
+
+Vue.use(HighchartsVue)
 
 new Vue({
   router,
