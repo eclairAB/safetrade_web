@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import cors from 'cors'
 import Croppa from 'vue-croppa'
+import HighchartsVue from 'highcharts-vue'
+import Highcharts from "highcharts"
+import Stock from "highcharts/modules/stock"
 
 import 'chart.js'
 import 'hchs-vue-charts'
@@ -26,6 +29,9 @@ Vue.use(cors, window.VueCharts)
 library.add(faUserSecret)
 Vue.component('font-awesome-icon', FontAwesomeIcon)
 Vue.component('croppa', Croppa.component)
+
+Stock(Highcharts)
+Vue.use(HighchartsVue)
 
 new Vue({
   router,

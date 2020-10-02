@@ -1,9 +1,9 @@
 <template>
-  <v-row>
+  <v-row class="ma-0">
     <v-card width="100%">
       <v-toolbar class="gradient" dark>
         <v-img
-          class="shrink circ"
+          class="shrink circ mr-3"
           contain
           height="40px"
           :src="img"
@@ -27,7 +27,7 @@
 
       <v-text-field
         flat
-        class="mx-3 mt-3"
+        class="mx-5 mt-3"
         solo-inverted
         v-model="searchBox"
         hint=""
@@ -45,9 +45,18 @@
             v-for="(item, index) in users"
             :key="index"
           >
-            <v-card class="pa-2 ma-2" @click="setRID(item.id)">
+            <v-card
+              class="pa-2 ma-2"
+              @click="setRID(item.id)"
+              color="gradient-2"
+            >
               <v-row>
-                <v-col md="4" sm="12">
+                <v-col
+                  md="4"
+                  sm="12"
+                  class="pa-2"
+                  style="place-self: center; text-align: -webkit-center;"
+                >
                   <v-avatar size="60px">
                     <img
                       :src="
@@ -60,8 +69,8 @@
                 </v-col>
 
                 <v-col md="8" sm="12">
-                  <v-row>
-                    <span class="headline orange--text">
+                  <v-row style="flex-direction: column;">
+                    <span class="headline black--text">
                       {{ item.username }}
                     </span>
                     <span class="ovrflw">

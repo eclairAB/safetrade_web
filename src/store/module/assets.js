@@ -48,6 +48,7 @@ const actions = {
     commit('SET_IS_FETCHING_PRICES', payload)
   },
   async addAssetPrices({ commit }, payload) {
+    //console.log(payload)
     commit('UPDATE_OLDEST_TIME', payload)
     commit('ADD_ASSET_PRICES', payload)
   },
