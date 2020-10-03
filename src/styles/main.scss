@@ -133,6 +133,11 @@ $color-pack: false;
   background: linear-gradient(to right, #ce634a, #fab136);
 }
 
+.gradient-2 {
+  background: rgb(250,177,54);
+  background: radial-gradient(circle, rgba(250,177,54,1) 0%, rgba(206,99,74,1) 100%);
+}
+
 .deletegrad {
   background: -webkit-linear-gradient(to right, #d34727, #fa6666);
   background: linear-gradient(to right, #d34727, #fa6666);

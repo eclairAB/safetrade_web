@@ -10,16 +10,14 @@
           >
             <v-form ref="form" v-model="isFormValid">
               <v-row>
-                <v-flex xs12 px-5>
-                  <v-layout justify-space-between top>
+                <v-col class="px-5" cols="12">
+                  <v-row class="top" justify="space-between">
                     <span class="body-1">Cash credits</span>
 
-                    <div class="headline1">
-                      $ {{ userWallet.cash }}
-                    </div>
-                  </v-layout>
-                  <v-divider class="padding"/>
-                </v-flex>
+                    <!-- <div class="headline1">$ {{ userWallet.cash }}</div> -->
+                  </v-row>
+                  <v-divider class="padding" />
+                </v-col>
               </v-row>
               <v-row>
                 <v-col cols="6">
@@ -104,11 +102,82 @@ export default {
       try {
         await this.addBet(formData)
         this.$refs.form.reset()
+        this.addLine()
         this.showPopup('success', `$${formData.amount} bet placed.`)
       } catch (err) {
         console.log(err)
       }
       this.loading = false
+    },
+    async addLine() {
+      let chart = this.$parent.$refs.chart.chart
+      console.log(chart)
+
+      let series = chart.series[0]
+      let xAxis = chart.xAxis[0]
+      let yAxis = chart.yAxis[0]
+      let lastPointY = series.points[series.points.length - 1]
+      let yLineValue = yAxis.toPixels(lastPointY.y)
+      console.log(chart.yAxis)
+
+        chart.yAxis[0].addPlotLine({
+        id: 'betLine',
+        value: lastPointY.y,
+        color: 'green',
+        width: 1.3,
+        label: {
+          text: lastPointY.y,
+          style: {
+            color: 'white',
+          },
+        },
+      })
+
+
+      chart.xAxis[0].addPlotLine({
+        id: 'startWindow',
+        value: lastPointY.x,
+        color: 'red',
+        width: 1,
+        label: {
+          text: 'Bet Window',
+          style: {
+            color: 'white',
+          },
+        },
+      })
+
+      chart.xAxis[0].addPlotLine({
+        id: 'endWindow',
+        value: lastPointY.x + 6000,
+        color: 'red',
+        width: 1,
+        label: {
+          text: 'Bet Window',
+          style: {
+            color: 'white',
+          },
+        },
+      })
+      chart.addSeries({
+		   type: 'scatter',
+		   data: [{x: lastPointY.x, y: lastPointY.y}],
+		   id: 'customPoint',
+		   marker: {
+         enabled: true,
+			   symbol: 'url(https://www.highcharts.com/samples/graphics/sun.png)'
+		  }
+	   }, 8000)
+      
+
+      var audio = new Audio('https://www.soundjay.com/button/button-11.wav') // path to file
+      audio.play()
+
+      setTimeout(() => {
+        chart.xAxis[0].removePlotLine('startWindow')
+        chart.xAxis[0].removePlotLine('endWindow')
+        chart.yAxis[0].removePlotLine('betLine')
+      }, 7000) // bet window remove
     },
     showPopup(color, text) {
       this.snackBarPayload.color = color
@@ -117,9 +186,6 @@ export default {
       this.showSnackBar(this.snackBarPayload)
     },
   },
-  computed: {
-    ...mapGetters('userWallet', ['userWallet'])
-  }
 }
 </script>
 <style lang="scss">
