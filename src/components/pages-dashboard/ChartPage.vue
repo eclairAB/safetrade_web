@@ -16,6 +16,7 @@
         "
       >
         <user-bet @new-bet="newBet" />
+        <!-- <div id="container"></div> -->
       </div>
     </v-col>
   </v-row>
@@ -231,18 +232,18 @@ export default {
       })
       .add(this.animatedPointGroup)
 
-    chart.yAxis[0].addPlotLine({
-      id: 'value',
-      value: 100000000,
-      color: 'red',
-      width: 1.2,
-      label: {
-        text: 'Start',
-        style: {
-          color: 'white',
-        },
-      },
-    })
+    //     chart.yAxis[0].addPlotLine({
+    //   id: 'value',
+    //   value: 100000000,
+    //   color: 'red',
+    //   width: 1.2,
+    //   label: {
+    //     text: 'Start',
+    //     style: {
+    //       color: 'white',
+    //     },
+    //   },
+    // })
 
     let textValue
 
@@ -259,27 +260,30 @@ export default {
         let point = series.points[series.points.length - 1]
         let xPos = point.plotX + chart.plotLeft
         let yPos = point.plotY + chart.plotTop
+        chart.customTextGroup = chart.renderer.g('customTextGroup').add();
 
         if (typeof textValue == 'object') textValue.destroy()
 
         textValue = chart.renderer
           .label(
             parseFloat(data.price),
-            0,
-            point.plotY + chart.plotTop,
-            'callout',
-            point.plotX + chart.plotLeft,
-            point.plotY + chart.plotTop
+            chart.plotLeft + chart.plotSizeX,
+            point.plotY + chart.plotTop - 18,
+            'rect',
+            // point.plotX + chart.plotLeft,
+            // point.plotY + chart.plotTop
           )
           .css({
             color: '#FFFFFF',
+             'z-index':'999'
           })
           .attr({
-            fill: 'rgba(34, 79, 110, 1)',
-            padding: 10,
-            r: 5,
+            fill: 'rgba(124, 181, 236, 1)',
+            padding: 6,
+            r: 8,
+             zIndex: 999
           })
-          .add()
+          .add(chart.customTextGroup)
 
         if (moment(data.timestamp * 1000).second() == 30) {
           let maxLine =
@@ -325,13 +329,15 @@ export default {
               },
             },
           })
-
+           // Colors between starting and ending points
            chart.xAxis[0].addPlotBand({
                 from: maxLine,
                 to: minLine,
                 color: 'rgba(255, 99, 71, 0.1)',
                 id: 'plot-band'
             });
+
+
           let min = moment(chart.xAxis[0].max)
             .subtract(30, 'seconds')
             .set({ second: 0, millisecond: 0 })
@@ -359,6 +365,7 @@ export default {
           })
         }, 50)
 
+
         this.plotLine
           .animate({
             d: ['M', chart.plotLeft, yPos, 'L', xPos * 10000, yPos],
@@ -366,6 +373,7 @@ export default {
           .attr({
             stroke: '#008dc4',
             'stroke-width': 1,
+             zIndex: -3
           })
           .add()
       })
@@ -383,7 +391,3 @@ export default {
   },
 }
 </script>
-
-
-
-
