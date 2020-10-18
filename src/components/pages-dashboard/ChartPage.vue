@@ -261,6 +261,23 @@ export default {
         let xPos = point.plotX + chart.plotLeft
         let yPos = point.plotY + chart.plotTop
         chart.customTextGroup = chart.renderer.g('customTextGroup').add();
+        let markerUpdate = data.betData.up
+ 
+        if (!markerUpdate) {
+             return
+           }else {
+          point.update({
+            data: [{
+            x: xPos.x, 
+           y: yPos.y}],
+             marker: {
+              enabled: true,
+             radius: 12,
+             symbol: 'circle',
+            }
+        })
+      }
+      
 
         if (typeof textValue == 'object') textValue.destroy()
 
@@ -316,7 +333,6 @@ export default {
               },
             },
           })
-
           chart.xAxis[0].addPlotLine({
             id: 'startLine',
             value: maxLine,
@@ -336,7 +352,6 @@ export default {
                 color: 'rgba(255, 99, 71, 0.1)',
                 id: 'plot-band'
             });
-
 
           let min = moment(chart.xAxis[0].max)
             .subtract(30, 'seconds')
