@@ -60,6 +60,7 @@ const state = {
       labels: {
         align: 'left',
         format: '{value:.2f}',
+        zIndex: -1,
         y: 6,
         x: 2
     },
@@ -99,11 +100,18 @@ const state = {
         visibility: 'hidden',
       },
     },
+
+    
     plotOptions: {
       series: {
         fillOpacity: 0.1,
         marker: {
           enabled: false,
+          states: {
+            select: {
+              enabled: true,
+            }
+          }
         },
       },
     },
@@ -111,15 +119,18 @@ const state = {
       fontFamily: 'calibri',
       height: 900,
       type: 'area',
-      zoomType: 'x',
-      panKey: 'shift',
+      // zoomType: 'x',
+      // panKey: 'shift',
       backgroundColor: '#242C3E',
       styleMode: true,
-      marginRight: 50,
+      marginRight: 80,
     },
+    
     series: [
       {
+        allowPointSelect: true,
         data: [], // sample data
+
       },
     ],
   },
