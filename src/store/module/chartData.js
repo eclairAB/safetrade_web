@@ -5,13 +5,23 @@ Vue.use(Vuex)
 
 const state = {
   chartOptions: {
- legend: {
+    chart: {
+      fontFamily: 'calibri',
+      height: 900,
+      type: 'area',
+      // zoomType: 'x',
+      // panKey: 'shift',
+      backgroundColor: '#242C3E',
+      styleMode: true,
+      marginRight: 80,
+    },
+    legend: {
       enabled: false,
     },
     exporting: {
       enabled: false,
     },
- 
+
     title: {
       text: 'USD to EUR exchange rate',
     },
@@ -26,8 +36,8 @@ const state = {
       crosshair: {
         enabled: true,
         label: {
-          enabled: true
-        }
+          enabled: true,
+        },
       },
       tickInterval: 22 * 1000,
       type: 'datetime',
@@ -46,8 +56,8 @@ const state = {
       crosshair: {
         enabled: true,
         label: {
-          enabled: true
-        }
+          enabled: true,
+        },
       },
       // plotLines: [
       //   {
@@ -62,9 +72,8 @@ const state = {
         format: '{value:.2f}',
         zIndex: -1,
         y: 6,
-        x: 2
-    },
-      opposite: true,
+        x: 2,
+      },
       title: {
         text: 'Secondary axis',
       },
@@ -92,7 +101,6 @@ const state = {
         },
       ],
       inputEnabled: false,
-      selected: 0,
       buttonTheme: {
         visibility: 'hidden',
       },
@@ -101,7 +109,6 @@ const state = {
       },
     },
 
-    
     plotOptions: {
       series: {
         fillOpacity: 0.1,
@@ -110,27 +117,16 @@ const state = {
           states: {
             select: {
               enabled: true,
-            }
-          }
+            },
+          },
         },
       },
     },
-    chart: {
-      fontFamily: 'calibri',
-      height: 900,
-      type: 'area',
-      // zoomType: 'x',
-      // panKey: 'shift',
-      backgroundColor: '#242C3E',
-      styleMode: true,
-      marginRight: 80,
-    },
-    
+
     series: [
       {
         allowPointSelect: true,
         data: [], // sample data
-
       },
     ],
   },

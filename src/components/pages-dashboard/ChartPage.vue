@@ -1,37 +1,37 @@
 <template>
   <v-row style="height: 100%;">
-    <v-col class="col-chart pb-0 fill-height" cols="12">
+    <v-col class="col-chart pb-0 pt-0 fill-height" cols="12">
       <highcharts
-        :options="getChartOptions"
+        class="stock"
+        :constructor-type="'stockChart'"
+        :options="stockOptions"
         style="height: 100%;"
-        ref="chart"
-      ></highcharts>
-
+        ref="stockchart"
+      />
       <div
         style="
           position: absolute;
           z-index: 2;
-          bottom: 20px;
+          bottom: 0px;
           left: calc(50% - 242px);
         "
       >
         <user-bet @new-bet="newBet" />
-        <!-- <div id="container"></div> -->
       </div>
     </v-col>
+    <!-- <button @click="stop">Stop</button> -->
+    <!-- <button @click="addUp" class="btn">AddUp</button>
+    <button @click="addDown">AddDown</button>-->
   </v-row>
 </template>
+
 <script>
 import UserBet from '@/components/charts/UserBet'
 import { mapActions, mapGetters } from 'vuex'
 import { useAssetPrices } from '@/compositions'
-import { Chart } from 'highcharts-vue'
-const moment = require('moment')
-
 export default {
   components: {
     UserBet,
-    highcharts: Chart,
   },
   setup(_props, context) {
     const {
@@ -49,87 +49,137 @@ export default {
       oldestTime,
     }
   },
-  data: () => ({
-    plotLine: null,
-    chart: null,
-    data: [],
-    markers: [],
-    lastDateValue: null,
-    unit: 'seconds',
-    areaSeries: null,
-    shadowCircle: null,
-    animatedPointGroup: null,
-    // chartOptions: {
-    //   localization: {
-    //     dateFormat: 'yyyy-MM-dd',
-    //   },
-    //   layout: {
-    //     backgroundColor: '#242424',
-    //     textColor: '#d1d4dc',
-    //     fontSize: 13,
-    //     fontFamily: 'Calibri',
-    //   },
-    //   grid: {
-    //     vertLines: {
-    //       color: 'rgba(70, 130, 180, 0.5)',
-    //       style: 1,
-    //       visible: true,
-    //     },
-    //     horzLines: {
-    //       color: 'rgba(70, 130, 180, 0.5)',
-    //       style: 1,
-    //       visible: true,
-    //     },
-    //   },
-    //   rightPriceScale: {
-    //     mode: PriceScaleMode.Normal,
-    //     autoScale: true,
-    //     alignLabels: false,
-    //     borderVisible: false,
-    //     borderColor: '#555ffd',
-    //     scaleMargins: {
-    //       top: 0.3,
-    //       bottom: 0.25,
-    //     },
-    //   },
-    //   timeScale: {
-    //     rightOffset: 60,
-    //     barSpacing: 6,
-    //     fixLeftEdge: false,
-    //     lockVisibleTimeRangeOnResize: false,
-    //     rightBarStaysOnScroll: true,
-    //     borderVisible: false,
-    //     borderColor: '#ff7700',
-    //     visible: true,
-    //     timeVisible: true,
-    //     secondsVisible: true,
-    //   },
-    //   handleScroll: {
-    //     mouseWheel: true,
-    //     pressedMouseMove: true,
-    //   },
-    //   handleScale: {
-    //     axisPressedMouseMove: true,
-    //     mouseWheel: true,
-    //     pinch: true, // on touch devices
-    //   },
-    // },
-    //chartOptions: this.getChartOptions,
-    seriesOptions: {
-      overlay: true,
-      topColor: 'rgba(76, 175, 80, 0.56)',
-      bottomColor: 'rgba(76, 175, 80, 0.04)',
-      lineColor: 'rgba(76, 175, 80, 1)',
-      lineWidth: 2,
-      crosshairMarkerVisible: false,
-    },
-    windowSize: {
-      x: 0,
-      y: 0,
-    },
-  }),
+  data() {
+    return {
+      betStatus: true,
+      markers: [],
+      lastDateValue: null,
+      unit: 'seconds',
+      plotLine: null,
+      animatedPointGroup: null,
+      shadowCircle: null,
+      pointerSize: 10,
+      stockOptions: {
+        chart: {
+          type: 'area',
+          fontFamily: 'calibri',
+          height: '45%',
+          margin: [0, 0, 30, 0],
+          backgroundColor: '#242C3E',
+          styleMode: true,
+          marginRight: 80,
+        },
+        legend: {
+          enabled: false,
+        },
+        tooltip: {
+          style: {
+            width: '200px',
+          },
+          valueDecimals: 4,
+          shared: true,
+        },
+        exporting: {
+          enabled: false,
+        },
+        rangeSelector: {
+          enabled: false,
+        },
+        plotOptions: {
+          series: {
+            fillOpacity: 0.1,
+            gridLineWidth: 1,
+            // marker: {
+            //   enabled: false,
+            //   states: {
+            //     select: {
+            //       enabled: true,
+            //     },
+            //   },
+            // },
+          },
+        },
+        navigator: {
+          enabled: false,
+        },
+        title: {
+          text: 'USD to EUR exchange rate',
+        },
+        credits: {
+          enabled: false,
+        },
+        scrollbar: {
+          enabled: false,
+        },
+        xAxis: {
+          crosshair: {
+            enabled: true,
+            label: {
+              enabled: true,
+            },
+          },
+          overscroll: 15 * 1000, // 10 seconds
+          gridLineWidth: 0.1,
+          scrollbar: true,
+          type: 'datetime',
+          gridLineColor: 'rgba(70, 130, 180, 0.5)',
+          tickInterval: 15 * 1000,
+          gridZIndex: 1,
+          // range: 4 * 24 * 3600 * 1000,
+        },
+        yAxis: {
+          type: 'logarithmic',
+          gridLineColor: 'rgba(70, 130, 180, 0.5)',
+          crosshair: {
+            enabled: true,
+            label: {
+              enabled: true,
+            },
+          },
+          opposite: true,
+          labels: {
+            align: 'left',
+            format: '{value:.2f}',
+            zIndex: -1,
+            y: 6,
+            x: 2,
+          },
+          title: {
+            text: 'Secondary axis',
+          },
+        },
+        series: [
+          {
+            allowPointSelect: true,
+            name: 'Vaue',
+            lineWidth: 1,
+            data: [],
+            // data: (function () {
+            //   // generate an array of random data
+            //   var data = [],
+            //     time = new Date().getTime(),
+            //     i
+
+            //   for (i = -49; i <= 0; i += 1) {
+            //     data.push([time + i * 1000, Math.round(Math.random() * 100)])
+            //   }
+            //   return data
+            // })(),
+          },
+        ],
+      },
+      handle: null,
+    }
+  },
   computed: {
-    ...mapGetters('chartData', ['getChartOptions']),
+    BetStatus: {
+      get: function () {
+        return this.betStatus
+      },
+      set: function (status) {
+        this.betStatus = status
+      },
+    },
     tsOffset() {
       return Math.abs(new Date().getTimezoneOffset()) * 60
     },
@@ -139,8 +189,6 @@ export default {
   },
   methods: {
     ...mapActions('assets', ['addAssetPrices']),
-    ...mapActions('chartData', ['addPoint']),
-
     newBet(data) {
       const marker = {
         time: data.timestamp + this.tsOffset,
@@ -156,7 +204,9 @@ export default {
         },
       }
       this.markers.push(marker)
-     
+      this.BetStatus = false
+      this.createLines()
+      this.createMark(data)
     },
     correctTimestamp(item) {
       return {
@@ -165,14 +215,6 @@ export default {
       }
     },
     addBetMarker(betData) {
-
-      /*
-         betData = {
-            up: boolean,
-            amount: decimal,
-            timestamp: timestamp,
-         }
-       */
       if (!betData) {
         return
       }
@@ -190,219 +232,408 @@ export default {
       }
       this.markers.push(marker)
     },
+    // addUp() {
+    //   console.log('before clicking', this.BetStatus)
+    //   this.BetStatus = false
+    //   console.log('ok', this.BetStatus)
+
+    //   this.createLines()
+    //   this.createMark(true)
+    // },
+    // addDown() {
+    //   this.BetStatus = false
+    //   this.createLines()
+    //   this.createMark(false)
+    // },
+    stop() {
+      clearInterval(this.handle)
+    },
+    addRandomBet(coordData) {
+      var chart = this.$refs.stockchart.chart,
+        series = chart.series[0],
+        // x = new Date().getTime(), // current time
+        // y = Math.round(Math.random() * 100),
+        x = coordData.timestamp * 1000,
+        y = parseFloat(coordData.price),
+        point,
+        xPos,
+        yPos,
+        strStyle = '',
+        strMarker = ''
+      // if (y > 60 && y < 90) {
+      //   strStyle = 'up'
+      // }
+      // if (y < 30 && y > 10) {
+      //   strStyle = 'down'
+      // }
+      series.addPoint([x, y], true, series.points.length > 30)
+      if (coordData.betData) {
+        if (coordData.betData.up) {
+          strStyle = 'up'
+        } else {
+          strStyle = 'down'
+        }
+        strMarker =
+          '<div><span class="' +
+          strStyle +
+          '-amount">$' +
+          parseInt(coordData.betData.amount) +
+          '</span><div class="' +
+          strStyle +
+          '-image"><img src="logo.png" class="image" /></div></div>'
+        //((y > 60 && y < 90) || (y < 30 && y > 10))
+        if (this.BetStatus) {
+          setTimeout(function () {
+            series.data[series.data.length - 1].update(
+              {
+                type: 'scatter',
+                id: 'point',
+                // marker: {
+                //   enabled: true,
+                //   fillColor: circleColor,
+                //   radius: 3,
+                //   symbol: 'circle',
+                // },
+                dataLabels: {
+                  enabled: true,
+                  useHTML: true,
+                  outside: true,
+                  allowOverlap: true,
+                  formatter() {
+                    return strMarker
+                  },
+                },
+              },
+              true
+            )
+          }, 700)
+        }
+      }
+      point = series.points[series.points.length - 1]
+      xPos = point.plotX + chart.plotLeft
+      yPos = point.plotY + chart.plotTop
+
+      this.animatedPointGroup.animate({
+        translateX: xPos - this.pointerSize / 2,
+        translateY: yPos - this.pointerSize / 2,
+      })
+
+      this.plotLine.animate({
+        d: ['M', chart.plotLeft, yPos, 'L', xPos, yPos],
+      })
+
+      this.shadowCircle.animate({
+        r:
+          this.shadowCircle.attr('r') === this.pointerSize
+            ? this.pointerSize / 2
+            : this.pointerSize,
+      })
+    },
+    createLines() {
+      var myChart = this.$refs.stockchart.chart
+      var series = myChart.series[0]
+      var lastPointY = series.points[series.points.length - 1]
+      myChart.yAxis[0].addPlotLine({
+        id: 'betLine',
+        value: lastPointY.y,
+        color: 'green',
+        width: 1.3,
+        label: {
+          text: lastPointY.y,
+        },
+      })
+
+      myChart.xAxis[0].addPlotLine({
+        id: 'startWindow',
+        value: lastPointY.x,
+        color: 'red',
+        width: 1,
+        label: {
+          text: 'Bet Window',
+        },
+      })
+
+      myChart.xAxis[0].addPlotLine({
+        id: 'endWindow',
+        value: lastPointY.x + 14000,
+        color: 'red',
+        width: 1,
+        label: {
+          text: 'Bet Window',
+        },
+      })
+
+      var betWindowInterval = setInterval(function () {
+        myChart.xAxis[0].removePlotLine('startWindow')
+        myChart.xAxis[0].removePlotLine('endWindow')
+        myChart.yAxis[0].removePlotLine('betLine')
+        clearInterval(betWindowInterval)
+      }, 15000)
+    },
+    createMark(betData) {
+      var myChart = this.$refs.stockchart.chart
+      var series = myChart.series[0]
+      var point = series.points[series.points.length - 1]
+      var strStyle = '',
+        strMarker = ''
+      if (betData.up) {
+        strStyle = 'up'
+      } else {
+        strStyle = 'down'
+      }
+      strMarker =
+        '<div><div class="' +
+        strStyle +
+        '-bet"><span class="' +
+        strStyle +
+        '-amount-bet">$' +
+        betData.amount +
+        '</span></div></div>'
+      series.addPoint({
+        type: 'scatter',
+        id: 'point',
+        x: point.x,
+        y: point.y,
+        // marker: {
+        //   enabled: true,
+        //   fillColor: circleColor,
+        //   radius: 3,
+        //   symbol: 'circle',
+        // },
+        dataLabels: {
+          enabled: true,
+          useHTML: true,
+          outside: false,
+          allowOverlap: false,
+          format: strMarker,
+        },
+      })
+      this.BetStatus = true
+    },
   },
   async mounted() {
-    let chart = this.$refs.chart.chart
-    const pointerSize = 16
-
-    this.plotLine = chart.renderer
-      .path(['M', 0, 0, 'L', 0, 0])
-      .attr({
-        stroke: '#008dc4',
-        'stroke-width': 3,
-      })
-      .add()
-
+    var chart = this.$refs.stockchart.chart,
+      series = chart.series[0],
+      lastPoint,
+      xPos = 0,
+      yPos = 0
+    if (series.points.length > 0) {
+      lastPoint = series.points[series.points.length - 1]
+      xPos = lastPoint.plotX + chart.plotLeft
+      yPos = lastPoint.plotY + chart.plotTop
+    }
     this.animatedPointGroup = chart.renderer
       .g()
       .attr({
-        translateX: 0,
-        translateY: 0,
+        translateX: xPos - this.pointerSize / 2,
+        translateY: yPos - this.pointerSize / 2,
       })
       .add()
-
+    this.plotLine = chart.renderer
+      .path(['M', chart.plotLeft, yPos, 'L', xPos, yPos])
+      .attr({
+        stroke: '#008dc4',
+        'stroke-width': 1.5,
+      })
+      .add()
     this.shadowCircle = chart.renderer
-      .circle(pointerSize / 2, pointerSize / 2, pointerSize)
+      .circle(5, 10 / 2, 10)
       .attr({
         fill: '#d3d7de',
       })
       .add(this.animatedPointGroup)
-
     chart.renderer
-      .circle(pointerSize / 2, pointerSize / 2, 6)
+      .circle(this.pointerSize / 2, this.pointerSize / 2, 6)
       .attr({
         fill: '#ffffff',
       })
       .add(this.animatedPointGroup)
-
     chart.renderer
-      .circle(pointerSize / 2, pointerSize / 2, 3)
+      .circle(this.pointerSize / 2, this.pointerSize / 2, 3)
       .attr({
         fill: '#008dc4',
       })
       .add(this.animatedPointGroup)
-
-    //     chart.yAxis[0].addPlotLine({
-    //   id: 'value',
-    //   value: 100000000,
-    //   color: 'red',
-    //   width: 1.2,
-    //   label: {
-    //     text: 'Start',
-    //     style: {
-    //       color: 'white',
-    //     },
-    //   },
-    // })
-
-    let textValue
-
     this.$echo
       .channel('asset.price')
       .listen('AssetPriceUpdated', async ({ data }) => {
-        await this.addPoint([data.timestamp * 1000, parseFloat(data.price)])
         await this.addAssetPrices([data])
         await this.addBetMarker(data.betData)
 
-        let chart = this.$refs.chart.chart
-
-        let series = chart.series[0]
-        let point = series.points[series.points.length - 1]
-        let xPos = point.plotX + chart.plotLeft
-        let yPos = point.plotY + chart.plotTop
-        chart.customTextGroup = chart.renderer.g('customTextGroup').add();
-        let markerUpdate = data.betData.up
- 
-        if (!markerUpdate) {
-             return
-           }else {
-          point.update({
-            data: [{
-            x: xPos.x, 
-           y: yPos.y}],
-             marker: {
-              enabled: true,
-             radius: 12,
-             symbol: 'circle',
-            }
-        })
-      }
-      
-
-        if (typeof textValue == 'object') textValue.destroy()
-
-        textValue = chart.renderer
-          .label(
-            parseFloat(data.price),
-            chart.plotLeft + chart.plotSizeX,
-            point.plotY + chart.plotTop - 18,
-            'rect',
-            // point.plotX + chart.plotLeft,
-            // point.plotY + chart.plotTop
-          )
-          .css({
-            color: '#FFFFFF',
-             'z-index':'999'
-          })
-          .attr({
-            fill: 'rgba(124, 181, 236, 1)',
-            padding: 6,
-            r: 8,
-             zIndex: 999
-          })
-          .add(chart.customTextGroup)
-
-        if (moment(data.timestamp * 1000).second() == 30) {
-          let maxLine =
-            moment()
-              .add(1, 'minutes')
-              .set({ second: 30, millisecond: 0 })
-              .unix() * 1000
-
-          let minLine =
-            moment()
-              .add(2, 'minutes')
-              .set({ second: 0, millisecond: 0 })
-              .unix() * 1000
-
-          console.log(minLine, maxLine)
-
-          chart.xAxis[0].removePlotLine('startLine')
-          chart.xAxis[0].removePlotLine('endLine')
-          chart.xAxis[0].removePlotBand('plot-band')
-
-          chart.xAxis[0].addPlotLine({
-            id: 'endLine',
-            value: minLine,
-            color: 'red',
-            width: 1.2,
-            label: {
-              text: 'Finish',
-              style: {
-                color: 'white',
-              },
-            },
-          })
-          chart.xAxis[0].addPlotLine({
-            id: 'startLine',
-            value: maxLine,
-            color: 'red',
-            width: 1.2,
-            label: {
-              text: 'Start',
-              style: {
-                color: 'white',
-              },
-            },
-          })
-           // Colors between starting and ending points
-           chart.xAxis[0].addPlotBand({
-                from: maxLine,
-                to: minLine,
-                color: 'rgba(255, 99, 71, 0.1)',
-                id: 'plot-band'
-            });
-
-          let min = moment(chart.xAxis[0].max)
-            .subtract(30, 'seconds')
-            .set({ second: 0, millisecond: 0 })
-
-          chart.xAxis[0].setExtremes(
-            min.unix() * 1000,
-            moment()
-              .add(2, 'minutes')
-              .set({ second: 15, millisecond: 0 })
-              .unix() * 1000
-          )
-        }
-
-        setTimeout(() => {
-          this.animatedPointGroup.animate({
-            translateX: xPos - pointerSize / 2,
-            translateY: yPos - pointerSize / 2,
-          })
-
-          this.shadowCircle.animate({
-            r:
-              this.shadowCircle.attr('r') === pointerSize
-                ? pointerSize / 2
-                : pointerSize,
-          })
-        }, 50)
-
-
-        this.plotLine
-          .animate({
-            d: ['M', chart.plotLeft, yPos, 'L', xPos * 10000, yPos],
-          })
-          .attr({
-            stroke: '#008dc4',
-            'stroke-width': 1,
-             zIndex: -3
-          })
-          .add()
+        this.addRandomBet(data)
+        // this.handle = setInterval(
+        //   function () {
+        //     this.addRandomBet()
+        //   }.bind(this),
+        //   1000
+        // )
       })
-  },
-  beforeDestroy() {
-    //this.chart.timeScale().unsubscribeVisibleTimeRangeChange()
-  },
-  watch: {
-    // prices(value) {
-    //   if (value.length > 0) {
-    //     this.areaSeries.setData(value) // set the data
-    //     this.areaSeries.setMarkers(this.markers)
-    //   }
-    // },
   },
 }
 </script>
+<style>
+.stock {
+  /* width: 70%; */
+  margin: 0 auto;
+}
+.highcharts-scrollbar {
+  display: none;
+}
+.up-image {
+  border: 1px #03c503 solid;
+  border-radius: 45px;
+  height: 15px;
+  width: 15px;
+  transform: translate(-50%, -120%);
+  position: absolute;
+}
+.up-image::before {
+  position: absolute;
+  content: '';
+  border-style: solid;
+  border-width: 6px 3px 0 3px;
+  border-color: #03c503 transparent transparent transparent;
+  top: 106%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.up-image::after {
+  position: absolute;
+  display: flex;
+  content: '';
+  background-color: #03c503;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  top: calc(106% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.down-image {
+  border: 1px #be0050 solid;
+  border-radius: 45px;
+  height: 15px;
+  width: 15px;
+  transform: translate(-50%, 85%);
+  position: absolute;
+}
+.down-image::before {
+  position: absolute;
+  content: '';
+  border-style: solid;
+  border-width: 0px 3px 6px 3px;
+  border-color: transparent transparent #be0050 transparent;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.down-image::after {
+  position: absolute;
+  display: flex;
+  content: '';
+  background-color: #be0050;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  top: calc(-50% - 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.image {
+  width: 13px;
+  height: 13px;
+}
+.up-amount {
+  position: absolute;
+  color: #03c503;
+  top: -32px;
+  transform: translateX(-55%);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.down-amount {
+  position: absolute;
+  color: #be0050;
+  top: 27px;
+  transform: translateX(-55%);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+.up-amount-bet {
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+
+.up-bet {
+  border: 1px #03c503 solid;
+  background-color: #03c503;
+  border-radius: 5px;
+  height: 15px;
+  padding: 0 3px;
+  transform: translate(-50%, -120%);
+  position: absolute;
+}
+.up-bet::before {
+  position: absolute;
+  content: '';
+  border-style: solid;
+  border-width: 6px 3px 0 3px;
+  border-color: #03c503 transparent transparent transparent;
+  top: 106%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.up-bet::after {
+  position: absolute;
+  content: '';
+  display: flex;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #03c503;
+  top: calc(106% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.down-bet {
+  border: 1px #be0050 solid;
+  background-color: #be0050;
+  border-radius: 5px;
+  height: 15px;
+  padding: 0 3px;
+  transform: translate(-50%, 80%);
+  position: absolute;
+}
+.down-bet::before {
+  position: absolute;
+  content: '';
+  border-style: solid;
+  border-width: 0px 3px 6px 3px;
+  border-color: transparent transparent #be0050 transparent;
+  top: -48%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.down-bet::after {
+  position: absolute;
+  content: '';
+  display: flex;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #be0050;
+  top: calc(-48% - 6px);
+  left: 50%;
+  transform: translateX(-50%);
+}
+.down-amount-bet {
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: -1px;
+}
+</style>

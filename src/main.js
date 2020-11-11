@@ -5,8 +5,8 @@ import store from './store'
 import cors from 'cors'
 import Croppa from 'vue-croppa'
 import HighchartsVue from 'highcharts-vue'
-import Highcharts from "highcharts"
-import Stock from "highcharts/modules/stock"
+import Highcharts from 'highcharts'
+import Stock from 'highcharts/modules/stock'
 
 import 'chart.js'
 import 'hchs-vue-charts'

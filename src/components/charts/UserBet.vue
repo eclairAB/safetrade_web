@@ -83,8 +83,6 @@ export default {
     ...mapActions('assetBets', ['addBet']),
     ...mapActions('snackBar', ['showSnackBar']),
 
-   
-
     async submit(willGoUp) {
       if (!this.isFormValid) {
         return
@@ -97,22 +95,22 @@ export default {
         amount: this.amount,
       })
 
-      const formData = {
-        assetId: this.activeAsset.id,
-        amount: this.amount,
-        will_go_up: willGoUp,
-      }
-      try {
-        await this.addBet(formData)
-        this.$refs.form.reset()
-        this.addLine(willGoUp)
-        this.showPopup('success', `$${formData.amount} bet placed.`)
-      } catch (err) {
-        console.log(err)
-      }
+      // const formData = {
+      //   assetId: this.activeAsset.id,
+      //   amount: this.amount,
+      //   will_go_up: willGoUp,
+      // }
+      // try {
+      //   await this.addBet(formData)
+      //   this.$refs.form.reset()
+      //   this.addLine(willGoUp)
+      //   this.showPopup('success', `$${formData.amount} bet placed.`)
+      // } catch (err) {
+      //   console.log(err)
+      // }
       this.loading = false
     },
-    
+
     async addLine(direction) {
       let chart = this.$parent.$refs.chart.chart
 
@@ -164,7 +162,7 @@ export default {
           },
         },
       })
-      
+
       var audio = new Audio('https://www.soundjay.com/button/button-11.wav') // path to file
       audio.play()
 
@@ -174,68 +172,70 @@ export default {
         chart.yAxis[0].removePlotLine('betLine')
       }, 7000) // bet window remove
 
-        console.log('==============================================================')
-        this.createMark(lastPointY, direction) 
-        console.log('==============================================================')
+      console.log(
+        '=============================================================='
+      )
+      this.createMark(lastPointY, direction)
+      console.log(
+        '=============================================================='
+      )
     },
 
-        createMark(point, direction) {
-        let chart = this.$parent.$refs.chart.chart
-        
-        let series = chart.series[0]
+    createMark(point, direction) {
+      let chart = this.$parent.$refs.chart.chart
 
-        series.data[series.data.length - 1].update({
-            marker: {
-             enabled: true,
-             fillColor: direction ? 'green' : 'red',
-             radius: 12,
-             symbol: 'circle',
-            //  y: direction ? 10 : 10,
-           },
-             dataLabels: {
-              enabled: true,
-              color: 'white',
-              // backgroundColor: direction ? 'green' : 'red',
-              format: '<p>54</p>',
-              useHTML: true,
-              y: direction ? 10 : 10,
-           }
-        })
+      let series = chart.series[0]
 
+      series.data[series.data.length - 1].update({
+        marker: {
+          enabled: true,
+          fillColor: direction ? 'green' : 'red',
+          radius: 12,
+          symbol: 'circle',
+          //  y: direction ? 10 : 10,
+        },
+        dataLabels: {
+          enabled: true,
+          color: 'white',
+          // backgroundColor: direction ? 'green' : 'red',
+          format: '<p>54</p>',
+          useHTML: true,
+          y: direction ? 10 : 10,
+        },
+      })
 
-    //     chart.addSeries({
-    //     type: 'scatter',
-    //     data: [{
-    //       x: point.x, 
-    //       y: direction ? point.y - 3 : point.y + 3}],
-    //    id: 'customPoint',
-    //    marker: {
-    //      enabled: true,
-    //     fillColor: direction ? 'green' : 'red',
-    //     radius: 3,
-    //     symbol: direction ? 'triangle' : 'triangle-down'
-    //     }
-    //  })
-     // creates the bubble head of the marker
-    //    chart.addSeries({
-    //    styledMode: true,
-    //    type: 'scatter',
-    //    data: [{
-    //      x: point.x, 
-    //      y: direction ? point.y - 10 : point.y + 10
-    //   }],
-    //   id: 'customPoint',
-    //   marker: {
-    //     enabled: true,
-    //     fillColor: direction ? 'green' : 'red',
-    //     radius: 10,
-    //     symbol: 'circle',
-       
-    //    }
-    //  })
+      //     chart.addSeries({
+      //     type: 'scatter',
+      //     data: [{
+      //       x: point.x,
+      //       y: direction ? point.y - 3 : point.y + 3}],
+      //    id: 'customPoint',
+      //    marker: {
+      //      enabled: true,
+      //     fillColor: direction ? 'green' : 'red',
+      //     radius: 3,
+      //     symbol: direction ? 'triangle' : 'triangle-down'
+      //     }
+      //  })
+      // creates the bubble head of the marker
+      //    chart.addSeries({
+      //    styledMode: true,
+      //    type: 'scatter',
+      //    data: [{
+      //      x: point.x,
+      //      y: direction ? point.y - 10 : point.y + 10
+      //   }],
+      //   id: 'customPoint',
+      //   marker: {
+      //     enabled: true,
+      //     fillColor: direction ? 'green' : 'red',
+      //     radius: 10,
+      //     symbol: 'circle',
+
+      //    }
+      //  })
     },
 
-    
     showPopup(color, text) {
       this.snackBarPayload.color = color
       this.snackBarPayload.isShow = true
