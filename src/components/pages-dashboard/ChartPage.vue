@@ -136,13 +136,13 @@ export default {
               enabled: true,
             },
           },
-          opposite: true,
+          opposite: false,
           labels: {
             align: 'left',
             format: '{value:.2f}',
             zIndex: -1,
-            y: 6,
-            x: 2,
+            y: -3,
+            x: 10,
           },
           title: {
             text: 'Secondary axis',
@@ -205,7 +205,7 @@ export default {
       }
       this.markers.push(marker)
       this.BetStatus = false
-      this.createLines()
+      this.createLines(data)
       this.createMark(data)
     },
     correctTimestamp(item) {
@@ -329,14 +329,14 @@ export default {
             : this.pointerSize,
       })
     },
-    createLines() {
+    createLines(betData) {
       var myChart = this.$refs.stockchart.chart
       var series = myChart.series[0]
       var lastPointY = series.points[series.points.length - 1]
       myChart.yAxis[0].addPlotLine({
         id: 'betLine',
         value: lastPointY.y,
-        color: 'green',
+        color: betData.up ? ' #03c503' : '#be0050',
         width: 1.3,
         label: {
           text: lastPointY.y,
@@ -346,7 +346,7 @@ export default {
       myChart.xAxis[0].addPlotLine({
         id: 'startWindow',
         value: lastPointY.x,
-        color: 'red',
+        color: betData.up ? ' #03c503' : '#be0050',
         width: 1,
         label: {
           text: 'Bet Window',
@@ -356,7 +356,7 @@ export default {
       myChart.xAxis[0].addPlotLine({
         id: 'endWindow',
         value: lastPointY.x + 14000,
-        color: 'red',
+        color: betData.up ? ' #03c503' : '#be0050',
         width: 1,
         label: {
           text: 'Bet Window',
@@ -389,7 +389,21 @@ export default {
         '-amount-bet">$' +
         betData.amount +
         '</span></div></div>'
-      series.addPoint({
+      series.data[series.data.length - 1].update(
+        {
+          type: 'scatter',
+          id: 'point',
+          dataLabels: {
+            enabled: true,
+            useHTML: true,
+            outside: true,
+            allowOverlap: false,
+            format: strMarker,
+          },
+        },
+        true
+      )
+      /*series.addPoint({
         type: 'scatter',
         id: 'point',
         x: point.x,
@@ -407,7 +421,7 @@ export default {
           allowOverlap: false,
           format: strMarker,
         },
-      })
+      })*/
       this.BetStatus = true
     },
   },
